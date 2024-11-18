@@ -27,9 +27,20 @@ message HelloResponse {
 ## Notes
 ### MacOS
 - install cmake, `brew install cmake`. then check its vesion `cmake --version`.
-- install build tools `brew install autoconf automake libtool`. Skipped `pkg-config` which was already installed. `libtool` probably was already installed too.
-- fork grpc repo master only. then clone it to local, `git clone --recurse-submodules --depth 1 --shallow-submodules git@github.com:johnnyyan/grpc.git`.
+- install build tools `brew install autoconf automake libtool shtool`. Skipped `pkg-config` which was already installed. `libtool` probably was already installed too.
+- fork grpc repo master only. then clone it to local, `git clone --recurse-submodules --depth 1 --shallow-submodules git@github.com:johnnyyan/grpc.git`. Also ran `git submodule update --init`, no-op. Create `tutorial` branch, `git switch -c tutorial`.
 - set up env, `GRPC_DIR` to `$HOME/.local`. Replace `MY_INSTALL_DIR` with `GRPC_DIR` in the tutorial.
+- build and install gRPC
+    - `cd <repo-root>`
+    - `mkdir -p cmake/build`
+    - `pushd cmake/build`
+    - `cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=$GRPC_DIR ../..`. Note, originally used flag `-DBUILD_SHARED_LIBS=ON`, but the build failed with `ld: symbol(s) not found for architecture arm64`. It's a known [issue](https://github.com/grpc/grpc/issues/36654).
+    - `make -j 4`
+    - `make install`
+    - `popd`
+- build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example)
+
+### Ubuntu
 
 ## Linux TODO
 - install cmake `$ sudo apt install -y cmake` and `cmake --version`
