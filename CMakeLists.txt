@@ -46,6 +46,11 @@ set(gRPC_INSTALL_CMAKEDIR "lib/cmake/${PACKAGE_NAME}" CACHE STRING "Installation
 set(gRPC_INSTALL_SHAREDIR "share/grpc" CACHE STRING "Installation directory for root certificates")
 set(gRPC_BUILD_MSVC_MP_COUNT 0 CACHE STRING "The maximum number of processes for MSVC /MP option")
 
+# Set RUNPATH for bin/lib on Linux
+if (UNIX AND NOT APPLE)
+  set(CMAKE_INSTALL_RPATH "$ORIGIN;$ORIGIN/../${gRPC_INSTALL_LIBDIR}")
+endif ()
+
 # Options
 option(gRPC_BUILD_TESTS "Build tests" OFF)
 option(gRPC_BUILD_CODEGEN "Build codegen" ON)
@@ -17207,6 +17212,10 @@ target_link_libraries(grpc_cpp_plugin
 
 
 if(gRPC_INSTALL)
+  if (UNIX AND NOT APPLE)
+    set_property(TARGET grpc_cpp_plugin
+      PROPERTY INSTALL_RPATH "$ORIGIN/../${gRPC_INSTALL_LIBDIR}")
+  endif ()
   install(TARGETS grpc_cpp_plugin EXPORT gRPCPluginTargets
     RUNTIME DESTINATION ${gRPC_INSTALL_BINDIR}
     BUNDLE DESTINATION  ${gRPC_INSTALL_BINDIR}
@@ -17245,6 +17254,10 @@ target_link_libraries(grpc_csharp_plugin
 
 
 if(gRPC_INSTALL)
+  if (UNIX AND NOT APPLE)
+    set_property(TARGET grpc_csharp_plugin
+      PROPERTY INSTALL_RPATH "$ORIGIN/../${gRPC_INSTALL_LIBDIR}")
+  endif ()
   install(TARGETS grpc_csharp_plugin EXPORT gRPCPluginTargets
     RUNTIME DESTINATION ${gRPC_INSTALL_BINDIR}
     BUNDLE DESTINATION  ${gRPC_INSTALL_BINDIR}
@@ -17334,6 +17347,10 @@ target_link_libraries(grpc_node_plugin
 
 
 if(gRPC_INSTALL)
+  if (UNIX AND NOT APPLE)
+    set_property(TARGET grpc_node_plugin
+      PROPERTY INSTALL_RPATH "$ORIGIN/../${gRPC_INSTALL_LIBDIR}")
+  endif ()
   install(TARGETS grpc_node_plugin EXPORT gRPCPluginTargets
     RUNTIME DESTINATION ${gRPC_INSTALL_BINDIR}
     BUNDLE DESTINATION  ${gRPC_INSTALL_BINDIR}
@@ -17372,6 +17389,10 @@ target_link_libraries(grpc_objective_c_plugin
 
 
 if(gRPC_INSTALL)
+  if (UNIX AND NOT APPLE)
+    set_property(TARGET grpc_objective_c_plugin
+      PROPERTY INSTALL_RPATH "$ORIGIN/../${gRPC_INSTALL_LIBDIR}")
+  endif ()
   install(TARGETS grpc_objective_c_plugin EXPORT gRPCPluginTargets
     RUNTIME DESTINATION ${gRPC_INSTALL_BINDIR}
     BUNDLE DESTINATION  ${gRPC_INSTALL_BINDIR}
@@ -17410,6 +17431,10 @@ target_link_libraries(grpc_php_plugin
 
 
 if(gRPC_INSTALL)
+  if (UNIX AND NOT APPLE)
+    set_property(TARGET grpc_php_plugin
+      PROPERTY INSTALL_RPATH "$ORIGIN/../${gRPC_INSTALL_LIBDIR}")
+  endif ()
   install(TARGETS grpc_php_plugin EXPORT gRPCPluginTargets
     RUNTIME DESTINATION ${gRPC_INSTALL_BINDIR}
     BUNDLE DESTINATION  ${gRPC_INSTALL_BINDIR}
@@ -17448,6 +17473,10 @@ target_link_libraries(grpc_python_plugin
 
 
 if(gRPC_INSTALL)
+  if (UNIX AND NOT APPLE)
+    set_property(TARGET grpc_python_plugin
+      PROPERTY INSTALL_RPATH "$ORIGIN/../${gRPC_INSTALL_LIBDIR}")
+  endif ()
   install(TARGETS grpc_python_plugin EXPORT gRPCPluginTargets
     RUNTIME DESTINATION ${gRPC_INSTALL_BINDIR}
     BUNDLE DESTINATION  ${gRPC_INSTALL_BINDIR}
@@ -17486,6 +17515,10 @@ target_link_libraries(grpc_ruby_plugin
 
 
 if(gRPC_INSTALL)
+  if (UNIX AND NOT APPLE)
+    set_property(TARGET grpc_ruby_plugin
+      PROPERTY INSTALL_RPATH "$ORIGIN/../${gRPC_INSTALL_LIBDIR}")
+  endif ()
   install(TARGETS grpc_ruby_plugin EXPORT gRPCPluginTargets
     RUNTIME DESTINATION ${gRPC_INSTALL_BINDIR}
     BUNDLE DESTINATION  ${gRPC_INSTALL_BINDIR}

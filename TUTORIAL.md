@@ -24,12 +24,14 @@ message HelloResponse {
 - Client streaming RPCs where the client writes a sequence of messages and sends them to the server, `rpc LotsOfGreetings(stream HelloRequest) returns (HelloResponse);`
 - Bidirectional streaming RPCs where both sides send a sequence of messages using a read-write stream, `rpc BidiHello(stream HelloRequest) returns (stream HelloResponse);`
 
-## Notes
+## Tutorial Notes
+> We __strongly__ encourage you to install gRPC _locally_ — using an appropriately set `CMAKE_INSTALL_PREFIX` — because there is no easy way to uninstall gRPC after you’ve installed it globally.
+
 ### MacOS
 - install cmake, `brew install cmake`. then check its vesion `cmake --version`.
 - install build tools `brew install autoconf automake libtool shtool`. Skipped `pkg-config` which was already installed. `libtool` probably was already installed too.
 - fork grpc repo master only. then clone it to local, `git clone --recurse-submodules --depth 1 --shallow-submodules git@github.com:johnnyyan/grpc.git`. Also ran `git submodule update --init`, no-op. Create `tutorial` branch, `git switch -c tutorial`.
-- set up env, `GRPC_DIR` to `$HOME/.local`. Replace `MY_INSTALL_DIR` with `GRPC_DIR` in the tutorial.
+- set up env, `GRPC_DIR` to `$HOME/.local`. Replace `MY_INSTALL_DIR` with `GRPC_DIR` in the tutorial. Add `$GRPC_DIR/bin` to `PATH`.
 - build and install gRPC
     - `cd <repo-root>`
     - `mkdir -p cmake/build`
@@ -38,10 +40,23 @@ message HelloResponse {
     - `make -j 4`
     - `make install`
     - `popd`
-- build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example)
+- build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example). Note it is `cmake -DCMAKE_INSTALL_PREFIX=$GRPC_DIR ../..`.
 
 ### Ubuntu
-
-## Linux TODO
-- install cmake `$ sudo apt install -y cmake` and `cmake --version`
-
+- install cmake, `sudo apt install -y cmake`, then check its vesion `cmake --version`.
+- install build tools, `sudo apt install -y build-essential autoconf libtool pkg-config`.
+- clone my grpc fork, `git clone git@github.com:johnnyyan/grpc.git`. `git submodule update --init` to bring in submodules, i.e. third-party dependencies.
+- set up env, `GRPC_DIR` to `$HOME/.local`. Replace `MY_INSTALL_DIR` with `GRPC_DIR` in the tutorial. Add `$GRPC_DIR/bin` to `PATH`.
+- build and install gRPC
+    - `cd <repo-root>`
+    - `mkdir -p cmake/build`
+    - `pushd cmake/build`
+    - `cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=$GRPC_DIR -DBUILD_SHARED_LIBS=ON -DABSL_PROPAGATE_CXX_STD=ON ../..`. Note, added `-DABSL_PROPAGATE_CXX_STD=ON` based on warning.
+    - `make -j 4`
+    - `make install`
+    - `popd`
+- build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example). Note it is `cmake -DCMAKE_INSTALL_PREFIX=$GRPC_DIR ../..`.
+  - Have to run `LD_LIBRARY_PATH=~/.local/lib/ make -j 4` cause `grpc_cpp_plugin` missing dependencies, i.e. missing `RUNPATH`.
+  - Fixed it by setting `RPATH` for the plugins on Linux, e.g. `set_property(TARGET grpc_cpp_plugin PROPERTY INSTALL_RPATH "$ORIGIN/../${gRPC_INSTALL_LIBDIR}")`.
+  - Further fixed all the shared libraries that lack of `RUNPATH` by setting globally `set(CMAKE_INSTALL_RPATH "$ORIGIN;$ORIGIN/../${gRPC_INSTALL_LIBDIR}")`.
+  
