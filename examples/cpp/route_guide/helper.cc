@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "absl/flags/flag.h"
+#include "absl/flags/parse.h"
 #include "absl/log/log.h"
 
 #ifdef BAZEL_BUILD
@@ -43,7 +44,10 @@ ABSL_FLAG(std::string, db_path, "route_guide_db.json", "Path to db file");
 namespace routeguide {
 
 std::string GetDbFileContent(int argc, char** argv) {
+  absl::ParseCommandLine(argc, argv);
   std::string db_path = absl::GetFlag(FLAGS_db_path);
+  std::cout << "Using db_path: " << db_path << std::endl;
+
   std::ifstream db_file(db_path);
   if (!db_file.is_open()) {
     LOG(ERROR) << "Failed to open " << db_path;

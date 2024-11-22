@@ -33,14 +33,14 @@ message HelloResponse {
 - fork grpc repo master only. then clone it to local, `git clone --recurse-submodules --depth 1 --shallow-submodules git@github.com:johnnyyan/grpc.git`. Also ran `git submodule update --init`, no-op. Create `tutorial` branch, `git switch -c tutorial`.
 - set up env, `GRPC_DIR` to `$HOME/.local`. Replace `MY_INSTALL_DIR` with `GRPC_DIR` in the tutorial. Add `$GRPC_DIR/bin` to `PATH`.
 - build and install gRPC
-    - `cd <repo-root>`
-    - `mkdir -p cmake/build`
-    - `pushd cmake/build`
-    - `cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=$GRPC_DIR ../..`. Note, originally used flag `-DBUILD_SHARED_LIBS=ON`, but the build failed with `ld: symbol(s) not found for architecture arm64`. It's a known [issue](https://github.com/grpc/grpc/issues/36654).
-    - `make -j 4`
-    - `make install`
-    - `popd`
-- build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example). Note it is `cmake -DCMAKE_INSTALL_PREFIX=$GRPC_DIR ../..`.
+  - `cd <repo-root>`
+  - `mkdir -p cmake/build`
+  - `pushd cmake/build`
+  - `cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=$GRPC_DIR ../..`. Note, originally used flag `-DBUILD_SHARED_LIBS=ON`, but the build failed with `ld: symbol(s) not found for architecture arm64`. It's a known [issue](https://github.com/grpc/grpc/issues/36654).
+  - `make -j 4`
+  - `make install`
+  - `popd`
+- build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example). Note it is `cmake -DCMAKE_INSTALL_PREFIX=$GRPC_DIR ../..`. It turned out that using `-DCMAKE_PREFIX_PATH` probably is on purpose.
 
 ### Ubuntu
 - install cmake, `sudo apt install -y cmake`, then check its vesion `cmake --version`.
@@ -48,15 +48,26 @@ message HelloResponse {
 - clone my grpc fork, `git clone git@github.com:johnnyyan/grpc.git`. `git submodule update --init` to bring in submodules, i.e. third-party dependencies.
 - set up env, `GRPC_DIR` to `$HOME/.local`. Replace `MY_INSTALL_DIR` with `GRPC_DIR` in the tutorial. Add `$GRPC_DIR/bin` to `PATH`.
 - build and install gRPC
-    - `cd <repo-root>`
-    - `mkdir -p cmake/build`
-    - `pushd cmake/build`
-    - `cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=$GRPC_DIR -DBUILD_SHARED_LIBS=ON -DABSL_PROPAGATE_CXX_STD=ON ../..`. Note, added `-DABSL_PROPAGATE_CXX_STD=ON` based on warning.
-    - `make -j 4`
-    - `make install`
-    - `popd`
+  - `cd <repo-root>`
+  - `mkdir -p cmake/build`
+  - `pushd cmake/build`
+  - `cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX=$GRPC_DIR -DBUILD_SHARED_LIBS=ON -DABSL_PROPAGATE_CXX_STD=ON ../..`. Note, added `-DABSL_PROPAGATE_CXX_STD=ON` based on warning.
+  - `make -j 4`
+  - `make install`
+  - `popd`
 - build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example). Note it is `cmake -DCMAKE_INSTALL_PREFIX=$GRPC_DIR ../..`.
   - Have to run `LD_LIBRARY_PATH=~/.local/lib/ make -j 4` cause `grpc_cpp_plugin` missing dependencies, i.e. missing `RUNPATH`.
   - Fixed it by setting `RPATH` for the plugins on Linux, e.g. `set_property(TARGET grpc_cpp_plugin PROPERTY INSTALL_RPATH "$ORIGIN/../${gRPC_INSTALL_LIBDIR}")`.
   - Further fixed all the shared libraries that lack of `RUNPATH` by setting globally `set(CMAKE_INSTALL_RPATH "$ORIGIN;$ORIGIN/../${gRPC_INSTALL_LIBDIR}")`.
   
+## Q&A
+
+- What is `--grpc_out=.` in `protoc --grpc_out=. ...`?\
+  ``$ protoc -I ../../protos --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` ../../protos/route_guide.proto`` will generate grpc code using `protoc-gen-grpc` plugin which is implemented following this [guide](https://protobuf.dev/reference/cpp/api-docs/google.protobuf.compiler.plugin/).\
+  `$ protoc -I ../../protos --cpp_out=. ../../protos/route_guide.proto` will generate the other protobuf code like `message`, `enum`, etc.
+
+- What is Abseil?\
+  [Abseil](https://abseil.io/about/) is an open source collection of C++ libraries drawn from the most fundamental pieces of Google’s internal codebase. For intance, this [flags libray](https://abseil.io/docs/cpp/guides/flags) is extremely useful.
+
+## TODO
+- revisit this on Ubuntu: `-DCMAKE_PREFIX_PATH` probably is on purpose.
