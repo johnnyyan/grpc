@@ -40,7 +40,7 @@ message HelloResponse {
   - `make -j 4`
   - `make install`
   - `popd`
-- build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example). Note it is `cmake -DCMAKE_INSTALL_PREFIX=$GRPC_DIR ../..`. It turned out that using `-DCMAKE_PREFIX_PATH` probably is on purpose.
+- build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example). Note it is `cmake -DCMAKE_PREFIX_PATH=$GRPC_DIR ../..`, which is intentional.
 
 ### Ubuntu
 - install cmake, `sudo apt install -y cmake`, then check its vesion `cmake --version`.
@@ -55,11 +55,17 @@ message HelloResponse {
   - `make -j 4`
   - `make install`
   - `popd`
-- build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example). Note it is `cmake -DCMAKE_INSTALL_PREFIX=$GRPC_DIR ../..`.
+- build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example). Note it is `cmake -DCMAKE_PREFIX_PATH=$GRPC_DIR ../..`, see notes below.
   - Have to run `LD_LIBRARY_PATH=~/.local/lib/ make -j 4` cause `grpc_cpp_plugin` missing dependencies, i.e. missing `RUNPATH`.
   - Fixed it by setting `RPATH` for the plugins on Linux, e.g. `set_property(TARGET grpc_cpp_plugin PROPERTY INSTALL_RPATH "$ORIGIN/../${gRPC_INSTALL_LIBDIR}")`.
   - Further fixed all the shared libraries that lack of `RUNPATH` by setting globally `set(CMAKE_INSTALL_RPATH "$ORIGIN;$ORIGIN/../${gRPC_INSTALL_LIBDIR}")`.
-  
+  - Using `-DCMAKE_PREFIX_PATH=$GRPC_DIR` can help fix the error during `make -j 4`. But running the applications would still fail for loading shared libraries.\
+  `$ ./greeter_server` 
+  `./greeter_server: error while loading shared libraries: libupb_wire_lib.so.44: cannot open shared object file: No such file or directory`
+
+## Basics Tutorial Notes
+- Fixed a bug to read in the command line arg `--db_path` correctly by using `absl::ParseCommandLine(argc, argv)`.
+
 ## Q&A
 
 - What is `--grpc_out=.` in `protoc --grpc_out=. ...`?\
@@ -68,6 +74,3 @@ message HelloResponse {
 
 - What is Abseil?\
   [Abseil](https://abseil.io/about/) is an open source collection of C++ libraries drawn from the most fundamental pieces of Google’s internal codebase. For intance, this [flags libray](https://abseil.io/docs/cpp/guides/flags) is extremely useful.
-
-## TODO
-- revisit this on Ubuntu: `-DCMAKE_PREFIX_PATH` probably is on purpose.
