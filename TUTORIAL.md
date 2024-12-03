@@ -24,10 +24,11 @@ message HelloResponse {
 - Client streaming RPCs where the client writes a sequence of messages and sends them to the server, `rpc LotsOfGreetings(stream HelloRequest) returns (HelloResponse);`
 - Bidirectional streaming RPCs where both sides send a sequence of messages using a read-write stream, `rpc BidiHello(stream HelloRequest) returns (stream HelloResponse);`
 
-## Tutorial Notes
+## C++ Notes
+### Quick Start
 > We __strongly__ encourage you to install gRPC _locally_ — using an appropriately set `CMAKE_INSTALL_PREFIX` — because there is no easy way to uninstall gRPC after you’ve installed it globally.
 
-### MacOS
+#### MacOS
 - install cmake, `brew install cmake`. then check its vesion `cmake --version`.
 - install build tools `brew install autoconf automake libtool shtool`. Skipped `pkg-config` which was already installed. `libtool` probably was already installed too.
 - fork grpc repo master only. then clone it to local, `git clone --recurse-submodules --depth 1 --shallow-submodules git@github.com:johnnyyan/grpc.git`. Also ran `git submodule update --init`, no-op. Create `tutorial` branch, `git switch -c tutorial`.
@@ -42,7 +43,7 @@ message HelloResponse {
   - `popd`
 - build and run [example](https://grpc.io/docs/languages/cpp/quickstart/#build-the-example). Note it is `cmake -DCMAKE_PREFIX_PATH=$GRPC_DIR ../..`, which is intentional.
 
-### Ubuntu
+#### Ubuntu
 - install cmake, `sudo apt install -y cmake`, then check its vesion `cmake --version`.
 - install build tools, `sudo apt install -y build-essential autoconf libtool pkg-config`.
 - clone my grpc fork, `git clone git@github.com:johnnyyan/grpc.git`. `git submodule update --init` to bring in submodules, i.e. third-party dependencies.
@@ -63,8 +64,14 @@ message HelloResponse {
   `$ ./greeter_server` 
   `./greeter_server: error while loading shared libraries: libupb_wire_lib.so.44: cannot open shared object file: No such file or directory`
 
-## Basics Tutorial Notes
+### Basics Tutorial
 - Fixed a bug to read in the command line arg `--db_path` correctly by using `absl::ParseCommandLine(argc, argv)`.
+
+### Async-API Tutorial
+- The tutorial is almost useless! The best way to learn is skim through the tutorial and then read the detailed code directly, `examples/cpp/helloworld/greeter_async_server.cc` then `examples/cpp/helloworld/greeter_async_client.cc`, in which the comments are much more useful!
+- Added some debugging info to help understand the process. Note `ServerCompletionQueue->Next(...)` would "Read from the queue, blocking until _an event_ is available or the queue is shutting down." What's the event cycle? What events were emitted?
+
+### Asynchronous Callback API Tutorial
 
 ## Q&A
 

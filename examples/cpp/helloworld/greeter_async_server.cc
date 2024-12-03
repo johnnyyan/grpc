@@ -85,11 +85,18 @@ class ServerImpl final {
     CallData(Greeter::AsyncService* service, ServerCompletionQueue* cq)
         : service_(service), cq_(cq), responder_(&ctx_), status_(CREATE) {
       // Invoke the serving logic right away.
+      std::cout << "Creating CallData: " << this << std::endl;
       Proceed();
+    }
+
+    ~CallData() {
+      std::cout << "Deleting CallData: " << this << std::endl;
     }
 
     void Proceed() {
       if (status_ == CREATE) {
+        std::cout << "status_ == CREATE: " << this << std::endl;
+
         // Make this instance progress to the PROCESS state.
         status_ = PROCESS;
 
@@ -101,6 +108,8 @@ class ServerImpl final {
         service_->RequestSayHello(&ctx_, &request_, &responder_, cq_, cq_,
                                   this);
       } else if (status_ == PROCESS) {
+        std::cout << "status_ == PROCESS: " << this << std::endl;
+
         // Spawn a new CallData instance to serve new clients while we process
         // the one for this CallData. The instance will deallocate itself as
         // part of its FINISH state.
@@ -116,6 +125,8 @@ class ServerImpl final {
         status_ = FINISH;
         responder_.Finish(reply_, Status::OK, this);
       } else {
+        std::cout << "status_ == FINISH: " << this << std::endl;
+
         CHECK_EQ(status_, FINISH);
         // Once in the FINISH state, deallocate ourselves (CallData).
         delete this;
@@ -160,6 +171,7 @@ class ServerImpl final {
       // tells us whether there is any kind of event or cq_ is shutting down.
       CHECK(cq_->Next(&tag, &ok));
       CHECK(ok);
+      std::cout << "rpc tag: " << tag << std::endl;
       static_cast<CallData*>(tag)->Proceed();
     }
   }
